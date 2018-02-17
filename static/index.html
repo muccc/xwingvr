@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>X-Wing</title>
+    <script src="https://aframe.io/releases/0.7.1/aframe.min.js"></script>
+    <script src="js/xwing.js"></script>
+    <script src="js/ship.js"></script>
+    <script src="js/laser-teleport.js"></script>
+    <script src="js/commandable.js"></script>
+    <script src="js/statussphere.js"></script>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		var socket;
+    	window.onload = function() {
+			socket = io();
+			socket.on('connect', () => {
+				socket.on('yourship', (data) => {
+			    	var ship = document.createElement('a-entity');
+			    	ship.setAttribute("id",data.id);
+			    	ship.setAttribute("ship", "type:"+data.type+";");
+			    	ship.setAttribute("commandableship", "");
+			    	ship.setAttribute("position", data.pos);
+			    	ship.setAttribute("rotation", data.rot);
+			    	document.querySelector('a-scene').append(ship);
+				});
+				
+				socket.on('othership',(data) => {
+			    	var ship = document.createElement('a-entity');
+			    	ship.setAttribute("id",data.id);
+			    	ship.setAttribute("ship", "type:"+data.type+";");
+			    	ship.setAttribute("position", data.pos);
+			    	ship.setAttribute("rotation", data.rot);
+			    	document.querySelector('a-scene').append(ship);
+				});
+				
+				socket.on('removeShip',(data) => {
+					var ship = document.getElementById(data.id);
+					ship.parentElement.remove(ship);
+				});
+				
+				socket.on('moveShip', (data) => {
+					var ship = document.getElementById(data.id);
+			    	ship.setAttribute("position", data.pos);
+			    	ship.setAttribute("rotation", data.rot);
+				});
+
+			});
+
+	    }
+    </script>
+  </head>
+  <body>
+    <a-scene>
+      <a-assets>
+		<img id="backgroundimage" src="img/stars.png"></img>
+		<img id="flightcomputer" src="img/flightcomputer.png"></img>
+		<img id="throttle" src="img/throttle.png"></img>
+		<img id="go" src="img/go.png"></img>
+      </a-assets>
+	  
+	<a-entity laser-teleport></a-entity>
+	
+	<a-sky src="#backgroundimage"></a-sky>
+
+	</a-scene>
+  </body>
+</html>
