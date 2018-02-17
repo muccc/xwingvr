@@ -47,7 +47,8 @@ AFRAME.registerComponent('commandablecontrolleractive', {
 		var selectionArea = document.createElement('a-entity');
 		selectionArea.setAttribute('position',""+pos.x+" "+pos.y+" "+pos.z);
 		
-		var cameraPos = document.querySelector('[camera]').getAttribute('position');
+		var cameraPos = (new THREE.Vector3()).setFromMatrixPosition(document.querySelector('[camera]').object3D.matrixWorld);
+		
 		var angle = XWING.calculatePitchAndYawForCoords(pos, cameraPos);
 		
 		selectionArea.setAttribute('rotation',""+angle.pitch+" "+angle.yaw+" 0");
@@ -144,7 +145,7 @@ AFRAME.registerComponent('commandablecontrolleractive', {
 	
 	tick: function() {
 		var pos = this.el.getAttribute('position');
-		var cameraPos = document.querySelector('[camera]').getAttribute('position');
+		var cameraPos = (new THREE.Vector3()).setFromMatrixPosition(document.querySelector('[camera]').object3D.matrixWorld);
 		var angle = XWING.calculatePitchAndYawForCoords(pos, cameraPos);
 		this.selectionArea.setAttribute('rotation',""+angle.pitch+" "+angle.yaw+" 0");
 	}

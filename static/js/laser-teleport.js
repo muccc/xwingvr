@@ -19,8 +19,8 @@ AFRAME.registerComponent('teleportable', {
 			var jmp = XWING.teleportDistance;
 	    	
 	    	var dPitch = document.querySelector('#teleportlaser').getAttribute('rotation').x;
-	    	var dYaw = document.querySelector('#teleportlaser').getAttribute('rotation').y;
-	    	var dRoll = document.querySelector('#teleportlaser').getAttribute('rotation').z;
+	    	var dYaw   = document.querySelector('#teleportlaser').getAttribute('rotation').y;
+	    	var dRoll  = document.querySelector('#teleportlaser').getAttribute('rotation').z;
 	      
 	      
 	        var xOld = el.getAttribute('position').x;
@@ -124,17 +124,23 @@ AFRAME.registerComponent('motion-listener', {
 
 AFRAME.registerComponent('laser-teleport', {
   init: function () {
-    var el = this.el;
-    var self = this;
-   	
-   	el.setAttribute('id', 'teleportlaser');
-   	el.setAttribute('laser-controls', '');
+	var lasercontrolentity = document.createElement('a-entity');
+	lasercontrolentity.setAttribute('id', 'teleportlaser');
+	lasercontrolentity.setAttribute('laser-controls', '');
+	
+	this.el.appendChild(lasercontrolentity);
+    
    	
    	if (document.querySelector('a-camera') == null) {
-   		document.querySelector('a-scene').appendChild(document.createElement('a-camera'));
+   		this.el.appendChild(document.createElement('a-camera'));
+   	} else {
+		//tested?
+		var cameraEntity = document.querySelector('a-camera');
+		cameraEntity.parentElement.removeChild(cameraEntity);
+		this.el.appendChild(cameraEntity);
    	}
    	
-   	document.querySelector('a-camera').setAttribute('teleportable','');
+   	this.el.setAttribute('teleportable','');
    	
    	if (!(
    		AFRAME.utils.device.isGearVR()
@@ -146,8 +152,8 @@ AFRAME.registerComponent('laser-teleport', {
 		document.querySelector('a-camera').setAttribute('wasd-controls',"fly:true;");
 		var cursor = document.createElement('a-entity');
 		cursor.setAttribute('cursor',"fuse: true; fuseTimeout: 500");
-		cursor.setAttribute('position',"0 0 -0.3");
-		cursor.setAttribute('geometry',"primitive: ring; radiusInner: 0.005; radiusOuter: 0.006");
+		cursor.setAttribute('position',"0 0 -0.03");
+		cursor.setAttribute('geometry',"primitive: ring; radiusInner: 0.0004; radiusOuter: 0.00055");
 		cursor.setAttribute('material',"color: red; shader: flat");
 		
 		document.querySelector('a-camera').appendChild(cursor);
