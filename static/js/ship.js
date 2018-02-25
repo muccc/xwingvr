@@ -35,6 +35,9 @@ var shipconfig= {
 AFRAME.registerComponent('ship', {
 	schema: {
 		type: {type: 'string', default: 'xwing'},
+		hull:    {type: 'int', default: 100},
+		shields: {type: 'int', default: 0},
+		
 		
 	},
 	
@@ -173,6 +176,8 @@ AFRAME.registerComponent('ship', {
 
 		//actual constructor
 		this.type = this.data.type;
+		this.hull = this.data.hull;
+		this.shields = this.data.shields;
 		this.mine = false;
 		this.config = shipconfig[this.type]; 
 		this.buildShip();

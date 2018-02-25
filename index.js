@@ -21,8 +21,13 @@ function createRandomShip(myId) {
 	myRot.x = Math.random()*120-60;
 	myRot.y = Math.random()*360;
 	myRot.z = Math.random()*40-20;	
+	
+	
+	//temp: hull and shield values
+	var myHull = 100;
+	var myShields = myType=="xwing"?100:0;
 
-	return {id:myId, type:myType, pos:myPos, rot:myRot};
+	return {id:myId, type:myType, pos:myPos, rot:myRot, hull:myHull, shields:myShields};
 }
 
 
