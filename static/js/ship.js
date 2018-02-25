@@ -170,6 +170,10 @@ AFRAME.registerComponent('ship', {
 		this.el.addEventListener('doMove',function(selectedYawPitchThrottle) {
 			self.doMove(selectedYawPitchThrottle.detail);
 		});
+		this.el.addEventListener('clear', function () {
+			self.clearDots();
+			this.removeAttribute('commandablecontrolleractive');
+		});
 
 		//actual constructor
 		this.type = this.data.type;
