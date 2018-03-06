@@ -5,7 +5,7 @@ AFRAME.registerComponent('xwingscene', {
 			this.socket.on('ship',(data) => {
 		    	var ship = document.createElement('a-entity');
 		    	ship.setAttribute("id",data.id);
-		    	ship.setAttribute("ship", "type:"+data.type+";");
+				ship.setAttribute("ship", "type:"+data.type+"; hull:"+data.hull+"; shields:"+data.shields+";");
 		    	ship.setAttribute("position", data.pos);
 		    	ship.setAttribute("rotation", data.rot);
 		    	this.el.append(ship);
