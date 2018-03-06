@@ -1,0 +1,11 @@
+version: "2"
+services:
+  node:
+    build: .
+    user: "node"
+    working_dir: /home/node
+    environment:
+      - NPM_CONFIG_LOGLEVEL=info
+    ports:
+      - "8080:8080"
+    command: "node index.js"
