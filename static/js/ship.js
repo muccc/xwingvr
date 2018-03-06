@@ -149,17 +149,21 @@ AFRAME.registerComponent('ship', {
 			var position = this.el.getAttribute('position');
 			var rotation = this.el.getAttribute('rotation');
 
-			var to=this.to(position, rotation, selectedYawPitchThrottle);
-
-		    //this.el.setAttribute('position', ""+to.x+" "+to.y+" "+to.z);
-		    //this.el.setAttribute('rotation', ""+to.pitch+" "+to.yaw+" "+to.roll);
-
-			//todo!!
-			socket.emit('moveShip', to, this.el.getAttribute('id'));
+			
+			var data = {};
+			data.to=this.to(position, rotation, selectedYawPitchThrottle);
+			data.id=this.el.getAttribute('id');
+			this.sceneEl.emit('movementSelection', data);
 
 			this.el.removeAttribute('commandablecontrolleractive');
 			this.active = false;
 		}
+
+		this.setMovementData = function(data) {
+			this.el.setAttribute("position", data.pos);
+			this.el.setAttribute("rotation", data.rot);
+		}
+		
 
 		var self = this;
 
@@ -174,12 +178,18 @@ AFRAME.registerComponent('ship', {
 			self.clearDots();
 			this.removeAttribute('commandablecontrolleractive');
 		});
+		
+		this.el.addEventListener('setMovementData', function(data) {
+			self.setMovementData(data.detail);
+		});
+
 
 		//actual constructor
 		this.type = this.data.type;
 		this.mine = false;
 		this.config = shipconfig[this.type];
 		this.buildShip();
+		this.sceneEl = document.querySelector('a-scene');
 	}
 
 });

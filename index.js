@@ -138,7 +138,7 @@ io.on('connection', function(socket){
     checkAllReady();
   });
 
-  socket.on('moveShip', function(to, shipID){
+  socket.on('movementSelection', function(to, shipID){
     console.log("Got move: " + to + " From: " + playerID + " Ship: " + shipID);
 	var myPos = {};
 	myPos.x = to.x;
