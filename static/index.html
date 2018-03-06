@@ -14,23 +14,18 @@
     	window.onload = function() {
 			socket = io();
 			socket.on('connect', () => {
-				socket.on('yourship', (data) => {
+				socket.on('ship',(data) => {
 			    	var ship = document.createElement('a-entity');
 			    	ship.setAttribute("id",data.id);
 			    	ship.setAttribute("ship", "type:"+data.type+";");
-			    	ship.setAttribute("commandableship", "");
 			    	ship.setAttribute("position", data.pos);
 			    	ship.setAttribute("rotation", data.rot);
 			    	document.querySelector('a-scene').append(ship);
 				});
 
-				socket.on('othership',(data) => {
-			    	var ship = document.createElement('a-entity');
-			    	ship.setAttribute("id",data.id);
-			    	ship.setAttribute("ship", "type:"+data.type+";");
-			    	ship.setAttribute("position", data.pos);
-			    	ship.setAttribute("rotation", data.rot);
-			    	document.querySelector('a-scene').append(ship);
+				socket.on('yourship', (data) => {
+			    	var ship = document.querySelector('#'+data.id);
+			    	ship.setAttribute("commandableship", "");
 				});
 
 				socket.on('removeShip',(data) => {
@@ -44,9 +39,13 @@
 					ship.setAttribute("position", data.pos);
 					ship.setAttribute("rotation", data.rot);
 				});
-
 			});
-
+			
+			if(location.hash = "#rebel") { //todo: user interface!
+				socket.emit('joinSide','rebel');
+			} else {
+				socket.emit('joinSide','empire');
+			}
 	    }
     </script>
   </head>

@@ -1,4 +1,5 @@
 var express = require('express');
+
 var app = express();
 
 var http = require('http').Server(app);
@@ -6,15 +7,28 @@ var io = require('socket.io')(http);
 
 app.use(express.static('static'))
 
-setMovementTimeout = 20000;
+var scenarios = require('./lib/scenarios.js');
+var scenario; //set in init
+
+// Phases: setMovement / evaluateMovement / setAction / evaluateAction
+var phase;
+var setMovementTimeout;
 
 var sockets = [];
 var ships = {};
 var players = {};
 
-// Phases: setMovement / evaluateMovement / setAction / evaluateAction
-var phase = "setMovement";
-setTimeout(nextPhase, setMovementTimeout);
+
+function init() {
+	scenario = scenarios.basic; //this should be configurable...
+
+	ships = createShips();
+
+	setMovementTimeout = scenario.global.phaseDuration  * 1000;
+
+	setTimeout(nextPhase, setMovementTimeout);
+	phase = "setMovement";
+}
 
 function getPlayerID(socketID) {
   for (var playerID in players) {
@@ -71,21 +85,20 @@ function evaluateMovement() {
   }
 }
 
-function createRandomShip(myId) {
-	var myType = Math.random()>0.5?"xwing":"tie";
-	var myPos = {};
-	myPos.x = Math.random()*4-2;
-	myPos.y = Math.random()*4-2;
-	myPos.z = Math.random()*4-2;
+function createShips() {
+	var result = {};
+	for (var ship in scenario.rebel) {
+    	result[scenario.rebel[ship].id] = scenario.rebel[ship];
+    	result[scenario.rebel[ship].id].side = 'rebel';
+    }
 
-
-	var myRot = {};
-	myRot.x = Math.random()*120-60;
-	myRot.y = Math.random()*360;
-	myRot.z = Math.random()*40-20;
-
-	return {id:myId, type:myType, pos:myPos, rot:myRot};
+	for (var ship in scenario.empire) {
+    	result[scenario.empire[ship].id] = scenario.empire[ship];
+    	result[scenario.empire[ship].id].side = 'empire';
+    }
+    return result;
 }
+
 
 
 io.on('connection', function(socket){
@@ -94,7 +107,7 @@ io.on('connection', function(socket){
   //send other ships to user:
   var shipArray = Object.values(ships);
   for (var i = 0; i<shipArray.length; i++) {
-  	socket.emit('othership', shipArray[i]);
+  	socket.emit('ship', shipArray[i]);
   }
 
   //to begin with
@@ -103,17 +116,19 @@ io.on('connection', function(socket){
   players[playerID] = {};
   players[playerID].socketID = socket.id;
   players[playerID].phaseReady = false;
+  
 
-  //create user's ship
-  var shipID = playerID+"_01";
-  ships[shipID]=createRandomShip(shipID);
-  socket.emit("yourship", ships[shipID]);
-  socket.broadcast.emit("othership", ships[shipID]);
+  socket.on('joinSide', function(side) {
+  	for (var i = 0; i<shipArray.length; i++) {
+		if (shipArray[i].side == side) {
+		  	socket.emit('yourship', shipArray[i]);
+		  	console.log(shipArray[i]);
+		}
+	}	
+  });
 
   socket.on('disconnect', function(){
-	socket.broadcast.emit('removeShip', ships[shipID]);
   	sockets = sockets.filter(item => item !== this)
-  	delete(ships[shipID]);
     delete(players[playerID]);
     console.log(socket.id+' disconnected. now ' + sockets.length + " users in total");
   });
@@ -123,7 +138,7 @@ io.on('connection', function(socket){
     checkAllReady();
   });
 
-  socket.on('moveShip', function(to){
+  socket.on('moveShip', function(to, shipID){
     console.log("Got move: " + to + " From: " + playerID + " Ship: " + shipID);
 	var myPos = {};
 	myPos.x = to.x;
@@ -131,18 +146,15 @@ io.on('connection', function(socket){
 	myPos.z = to.z
 	ships[shipID].stagedPos = myPos;
 
-
 	var myRot = {};
 	myRot.x = to.pitch;
 	myRot.y = to.yaw;
 	myRot.z = to.roll;
 	ships[shipID].stagedRot = myRot;
-
-
-	//socket.broadcast.emit('moveShip', ships[shipID]);
   });
 });
 
 http.listen(8080, function(){
   console.log('listening on *:8080');
+  init();
 });

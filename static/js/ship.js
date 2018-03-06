@@ -155,7 +155,7 @@ AFRAME.registerComponent('ship', {
 		    //this.el.setAttribute('rotation', ""+to.pitch+" "+to.yaw+" "+to.roll);
 
 			//todo!!
-			socket.emit('moveShip', to);
+			socket.emit('moveShip', to, this.el.getAttribute('id'));
 
 			this.el.removeAttribute('commandablecontrolleractive');
 			this.active = false;
