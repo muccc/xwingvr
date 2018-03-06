@@ -18,7 +18,6 @@ var sockets = [];
 var ships = {};
 var players = {};
 
-
 function init() {
 	scenario = scenarios.basic; //this should be configurable...
 
