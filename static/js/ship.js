@@ -164,7 +164,12 @@ AFRAME.registerComponent('ship', {
 			this.el.setAttribute("rotation", data.rot);
 		}
 		
+		this.clear = function() {
+			this.clearDots();
+			this.el.removeAttribute('commandablecontrolleractive');
+		}
 
+		//event listeners
 		var self = this;
 
 		this.el.addEventListener('doMoveGhost',function(selectedYawPitchThrottle) {
@@ -175,8 +180,7 @@ AFRAME.registerComponent('ship', {
 			self.doMove(selectedYawPitchThrottle.detail);
 		});
 		this.el.addEventListener('clear', function () {
-			self.clearDots();
-			this.removeAttribute('commandablecontrolleractive');
+			self.clear();
 		});
 		
 		this.el.addEventListener('setMovementData', function(data) {

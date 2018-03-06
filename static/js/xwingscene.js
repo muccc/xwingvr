@@ -8,7 +8,7 @@ AFRAME.registerComponent('xwingscene', {
 		    	ship.setAttribute("ship", "type:"+data.type+";");
 		    	ship.setAttribute("position", data.pos);
 		    	ship.setAttribute("rotation", data.rot);
-		    	document.querySelector('a-scene').append(ship);
+		    	this.el.append(ship);
 			});
 	
 			this.socket.on('yourship', (data) => {
