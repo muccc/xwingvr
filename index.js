@@ -122,9 +122,9 @@ io.on('connection', function(socket){
   	for (var i = 0; i<shipArray.length; i++) {
 		if (shipArray[i].side == side) {
 		  	socket.emit('yourship', shipArray[i]);
-		  	console.log(shipArray[i]);
 		}
-	}	
+	}
+	console.log('Player ' + playerID + ' joined ' + side);
   });
 
   socket.on('disconnect', function(){

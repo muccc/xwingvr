@@ -41,7 +41,7 @@
 				});
 			});
 			
-			if(location.hash = "#rebel") { //todo: user interface!
+			if(location.hash == "#rebel") { //todo: user interface!
 				socket.emit('joinSide','rebel');
 			} else {
 				socket.emit('joinSide','empire');
