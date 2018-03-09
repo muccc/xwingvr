@@ -7,6 +7,7 @@
     <script src="js/laser-teleport.js"></script>
     <script src="js/commandable.js"></script>
     <script src="js/statussphere.js"></script>
+    <script src="js/sideselector.js"></script>
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="js/xwingscene.js"></script>
@@ -18,14 +19,20 @@
 		<img id="flightcomputer" src="img/flightcomputer.png"></img>
 		<img id="throttle" src="img/throttle.png"></img>
 		<img id="go" src="img/go.png"></img>
-    <img id="moon" src="img/moon.jpg"></img> <!--moon texture from https://www.jpl.nasa.gov/spaceimages/details.php?id=PIA14931 -->
+    	<img id="moon" src="img/moon.jpg"></img> <!--moon texture from https://www.jpl.nasa.gov/spaceimages/details.php?id=PIA14931 -->
+		<img id="rebellogo" src="img/rebellogo.png"></img>    	
+		<img id="empirelogo" src="img/empirelogo.png"></img>    	
+    	
       </a-assets>
 
 	<a-entity laser-teleport></a-entity>
-
 	<a-sky src="#backgroundimage"></a-sky>
 
-  <a-sphere src="#moon" position="500 -250 0" rotation="90 0 0" radius="200"></a-sphere>
+	<a-entity id="rebelsideselector"  sideselector="side:rebel;"  position="-1 1 -3" geometry="primitive: box; width:1; height:1; depth:0.01;" material="src:#rebellogo;  color:#000; roughness: 1; metalness: 0"></a-entity>
+	<a-entity id="empiresideselector" sideselector="side:empire;"  position="1 1 -3" geometry="primitive: box; width:1; height:1; depth:0.01;" material="src:#empirelogo;  color:#FFF; roughness: 1; metalness: 0"></a-entity>
+	
+	
+  	<a-sphere src="#moon" position="500 -250 0" rotation="90 0 0" radius="200"></a-sphere>
 
 	</a-scene>
   </body>

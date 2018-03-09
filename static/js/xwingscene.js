@@ -28,19 +28,32 @@ AFRAME.registerComponent('xwingscene', {
 			});
 		});
 		
-		if(location.hash == "#rebel") { //todo: user interface!
-			this.socket.emit('joinSide','rebel');
-		} else {
-			this.socket.emit('joinSide','empire');
-		}
 		
 		this.emitMovementSelection=function(data) {
 			this.socket.emit('movementSelection', data.to, data.id);
 		}
 		
+		this.removeSideSelectorsAndEmitSideSelection=function(side) {
+			var els = document.querySelectorAll('[sideselector]');
+			for (var i = 0; i < els.length; i++) {
+			  els[i].parentNode.removeChild(els[i]);
+			}
+			
+		
+			if(side == "rebel") {
+				this.socket.emit('joinSide','rebel');
+			} else {
+				this.socket.emit('joinSide','empire');
+			}
+		}
+		
 		var self = this;
 		this.el.addEventListener('movementSelection', function(data) {
 			self.emitMovementSelection(data.detail);
+		});
+		
+		this.el.addEventListener('sideSelection', function(data) {
+			self.removeSideSelectorsAndEmitSideSelection(data.detail);
 		});
 	}
 });	
