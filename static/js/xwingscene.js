@@ -1,5 +1,7 @@
 AFRAME.registerComponent('xwingscene', {
 	init: function () {
+		this.phase = "init";
+		
 		this.socket = io();
 		this.socket.on('connect', () => {
 			this.socket.on('ship',(data) => {
@@ -13,7 +15,7 @@ AFRAME.registerComponent('xwingscene', {
 	
 			this.socket.on('yourship', (data) => {
 		    	var ship = document.querySelector('#'+data.id);
-		    	ship.setAttribute("commandableship", "");
+		    	ship.className += " commandableship";
 			});
 	
 			this.socket.on('removeShip',(data) => {
@@ -26,7 +28,57 @@ AFRAME.registerComponent('xwingscene', {
 				ship.emit('clear');
 				ship.emit('setMovementData', data);
 			});
+			
+			this.socket.on('nextPhase', (phase) => {
+				this.setPhase(phase);
+				//console.log("setPhase called with phase: "+phase);
+			});
 		});
+
+		this.setPhase = function(phase) {
+			
+			
+			var oldphase = this.phase;
+			
+			switch (oldphase) {
+				case "setMovement":
+				  this.enableMovementControls(false);
+			      break;
+			    case "evaluateMovement":
+			      break;
+				case "setAction":
+				  break;
+				case "evaluateAction":
+				  break;
+			}	
+			
+			this.phase = phase;
+
+			switch (this.phase) {
+				case "setMovement":
+				  this.enableMovementControls(true);
+			      break;
+			    case "evaluateMovement":
+			      break;
+				case "setAction":
+				  break;
+				case "evaluateAction":
+				  break;
+			}	
+			
+			//console.log("switched to phase: "+this.phase);
+		}
+		
+		this.enableMovementControls = function(enable) {
+			var els = document.querySelectorAll('.commandableship');
+			for (var i = 0; i < els.length; i++) {
+				if (enable) {
+					els[i].setAttribute("commandableship", "");
+				} else {
+					els[i].removeAttribute("commandableship");
+				}
+			}
+		}
 		
 		
 		this.emitMovementSelection=function(data) {

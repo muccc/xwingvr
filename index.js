@@ -25,8 +25,9 @@ function init() {
 
 	setMovementTimeout = scenario.global.phaseDuration  * 1000;
 
-	setTimeout(nextPhase, setMovementTimeout);
-	phase = "setMovement";
+	
+	phase = "init";
+	nextPhase();
 }
 
 function getPlayerID(socketID) {
@@ -48,12 +49,26 @@ function checkAllReady() {
 
 function nextPhase() {
   switch(phase) {
+  	case "init":
+  	  phase = "setMovement";
+  	  break;
     case "setMovement":
       phase = "evaluateMovement";
       break;
     case "evaluateMovement":
+      phase = "setAction"
+      break;
+    case "setAction":
+      phase = "evaluateAction";
+      break;
+    case "evaluateAction":  
       phase = "setMovement";
       break;
+    default:
+	  console.log("BUG: no next action for phase " + phase);
+      phase = "setMovement";
+      break;
+      
   }
   doPhaseAction();
 }
@@ -63,12 +78,28 @@ function doPhaseAction () {
   switch(phase) {
     case "setMovement":
       setTimeout(nextPhase, setMovementTimeout);
+      io.emit('nextPhase', phase);
       break;
     case "evaluateMovement":
       evaluateMovement();
+      io.emit('nextPhase', phase);
       nextPhase();
       break;
+	case "setAction":
+      setTimeout(nextPhase, setMovementTimeout);
+      io.emit('nextPhase', phase);
+	  break;
+	case "evaluateAction":
+	  io.emit('nextPhase', phase);
+
+
+	  nextPhase();
+	  break;
+	default:
+	  console.log("BUG: no action for phase " + phase);
+      break;	
   }
+  
 }
 
 function evaluateMovement() {
