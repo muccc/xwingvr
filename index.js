@@ -13,6 +13,7 @@ var scenario; //set in init
 // Phases: setMovement / evaluateMovement / setAction / evaluateAction
 var phase;
 var setMovementTimeout;
+var setActionTimeout;
 
 var sockets = [];
 var ships = {};
@@ -23,7 +24,8 @@ function init() {
 
 	ships = createShips();
 
-	setMovementTimeout = scenario.global.phaseDuration  * 1000;
+	setMovementTimeout = scenario.global.movementPhaseDuration  * 1000;
+	setActionTimeout = scenario.global.actionPhaseDuration  * 1000;
 
 	
 	phase = "init";
@@ -86,7 +88,7 @@ function doPhaseAction () {
       nextPhase();
       break;
 	case "setAction":
-      setTimeout(nextPhase, setMovementTimeout);
+      setTimeout(nextPhase, setActionTimeout);
       io.emit('nextPhase', phase);
 	  break;
 	case "evaluateAction":
@@ -155,6 +157,7 @@ io.on('connection', function(socket){
 		}
 	}
 	console.log('Player ' + playerID + ' joined ' + side);
+	socket.emit('nextPhase', phase);
   });
 
   socket.on('disconnect', function(){

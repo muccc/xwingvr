@@ -34,6 +34,7 @@ AFRAME.registerComponent('commandableship', {
 	remove: function() {
 		this.el.emit('clear');
 		this.el.removeEventListener('mousedown', this.fnordSwitchActive);
+		this.el.removeAttribute('commandablecontrolleractive');
 	}
 });
 

@@ -47,6 +47,7 @@ AFRAME.registerComponent('xwingscene', {
 			    case "evaluateMovement":
 			      break;
 				case "setAction":
+				  this.enableTargetControls(false);
 				  break;
 				case "evaluateAction":
 				  break;
@@ -61,6 +62,7 @@ AFRAME.registerComponent('xwingscene', {
 			    case "evaluateMovement":
 			      break;
 				case "setAction":
+				  this.enableTargetControls(true);
 				  break;
 				case "evaluateAction":
 				  break;
@@ -76,6 +78,17 @@ AFRAME.registerComponent('xwingscene', {
 					els[i].setAttribute("commandableship", "");
 				} else {
 					els[i].removeAttribute("commandableship");
+				}
+			}
+		}
+		
+		this.enableTargetControls = function(enable) {
+			var els = document.querySelectorAll('.commandableship');
+			for (var i = 0; i < els.length; i++) {
+				if (enable) {
+					els[i].setAttribute("commandableactionship", "");
+				} else {
+					els[i].removeAttribute("commandableactionship");
 				}
 			}
 		}
