@@ -30,7 +30,7 @@ AFRAME.registerComponent('commandableship', {
 		}
 		
 		this.el.addEventListener('mousedown', this.fnordSwitchActive); 
-		//this.el.emit('updatespherestatus');
+		this.el.emit('updatespherestatus');
 	},
 	remove: function() {
 		this.el.emit('clear');

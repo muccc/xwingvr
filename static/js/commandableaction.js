@@ -50,7 +50,7 @@ AFRAME.registerComponent('commandableactionship', {
 		this.el.addEventListener('mousedown', this.fnordSwitchActive);
 		this.el.addEventListener('setTarget', this.fnordSetTarget); 
 		
-		//this.el.emit('updatespherestatus');
+		this.el.emit('updatespherestatus');
 	},
 	remove: function() {
 		this.el.removeEventListener('mousedown', this.fnordSwitchActive);

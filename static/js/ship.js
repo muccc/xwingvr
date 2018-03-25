@@ -33,7 +33,7 @@ var shipconfig= {
 
 
 AFRAME.registerComponent('ship', {
-	dependencies:['statusspere'],
+	dependencies:['statussphere'],
 	
 	schema: {
 		type: {type: 'string', default: 'xwing'},
