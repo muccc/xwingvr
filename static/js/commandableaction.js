@@ -68,13 +68,11 @@ AFRAME.registerComponent('targetable', {
   	},
 
 	init: function() {
-		//console.log("origin: "+this.data.origin);
-		
 		
 		var self = this;
 		this.setMyselfAsTarget = function() {
 			var originEl = document.querySelector("#"+self.data.origin);
-			//originEl.emit("setTarget", self.el.id); //TODO: ???
+			originEl.emit("setTarget", self.el.id);
 			console.log(self.el.id);
 		}
 		

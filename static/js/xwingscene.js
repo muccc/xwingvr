@@ -10,6 +10,8 @@ AFRAME.registerComponent('xwingscene', {
 				ship.setAttribute("ship", "type:"+data.type+"; hull:"+data.hull+"; shields:"+data.shields+";");
 		    	ship.setAttribute("position", data.pos);
 		    	ship.setAttribute("rotation", data.rot);
+		    	ship.className = "targetable";
+
 		    	this.el.append(ship);
 			});
 	

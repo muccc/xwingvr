@@ -97,7 +97,7 @@ AFRAME.registerComponent('ship', {
 			this.model.setAttribute('gltf-model',"#"+this.type+"-gltf");
 			this.model.setAttribute('rotation',this.config.gltfRot);
 			this.model.setAttribute('scale', this.config.gltfScale+" "+this.config.gltfScale+" "+this.config.gltfScale);
-			this.model.className = "ship targetable";
+			this.model.className = "ship";
 
 			this.el.append(this.model);
 		}
