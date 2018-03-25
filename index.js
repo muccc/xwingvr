@@ -10,7 +10,7 @@ app.use(express.static('static'))
 var scenarios = require('./lib/scenarios.js');
 var scenario; //set in init
 
-// Phases: setMovement / evaluateMovement / setAction / evaluateAction
+// Phases: init / setMovement / evaluateMovement / setAction / evaluateAction
 var phase;
 var setMovementTimeout;
 
@@ -18,15 +18,18 @@ var sockets = [];
 var ships = {};
 var players = {};
 
+phase = "init";
+
 function init() {
-	scenario = scenarios.basic; //this should be configurable...
+  console.log('init..');
+  scenario = scenarios.basic; //this should be configurable...
 
-	ships = createShips();
+  ships = createShips();
 
-	setMovementTimeout = scenario.global.phaseDuration  * 1000;
+  setMovementTimeout = scenario.global.phaseDuration  * 1000;
 
-	setTimeout(nextPhase, setMovementTimeout);
-	phase = "setMovement";
+  console.log('init.. done');
+  nextPhase();
 }
 
 function getPlayerID(socketID) {
@@ -48,6 +51,9 @@ function checkAllReady() {
 
 function nextPhase() {
   switch(phase) {
+    case "init":
+      phase = "setMovement";
+      break;
     case "setMovement":
       phase = "evaluateMovement";
       break;
@@ -115,7 +121,7 @@ io.on('connection', function(socket){
   players[playerID] = {};
   players[playerID].socketID = socket.id;
   players[playerID].phaseReady = false;
-  
+
 
   socket.on('joinSide', function(side) {
   	for (var i = 0; i<shipArray.length; i++) {
