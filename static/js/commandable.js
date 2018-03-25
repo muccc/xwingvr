@@ -3,6 +3,8 @@ AFRAME.registerComponent('commandableship', {
 	dependencies : ['ship'],
 	
 	init: function () {
+		console.log(this.el.id+" is now moveable");
+		
 		this.active = false;
 		this.deactivate = function () {
 		  	this.el.emit('setShipInactive');
@@ -35,6 +37,7 @@ AFRAME.registerComponent('commandableship', {
 		this.el.emit('clear');
 		this.el.removeEventListener('mousedown', this.fnordSwitchActive);
 		this.el.removeAttribute('commandablecontrolleractive');
+		this.el.removeAttribute('statussphere');
 	}
 });
 

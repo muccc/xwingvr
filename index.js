@@ -185,6 +185,11 @@ io.on('connection', function(socket){
 	myRot.z = to.roll;
 	ships[shipID].stagedRot = myRot;
   });
+  
+  socket.on('targetSelection', function(shooterID, targetID) {
+  	console.log("Da schiesst der "+shooterID+" auf den armen "+targetID);
+  });
+  
 });
 
 http.listen(8080, function(){

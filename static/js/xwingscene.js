@@ -100,6 +100,11 @@ AFRAME.registerComponent('xwingscene', {
 			this.socket.emit('movementSelection', data.to, data.id);
 		}
 		
+		this.emitTargetSelection = function(data) {			
+			this.socket.emit('targetSelection', data.shooterID, data.targetID);
+		}
+		
+		
 		this.removeSideSelectorsAndEmitSideSelection=function(side) {
 			var els = document.querySelectorAll('[sideselector]');
 			for (var i = 0; i < els.length; i++) {
@@ -121,6 +126,10 @@ AFRAME.registerComponent('xwingscene', {
 		
 		this.el.addEventListener('sideSelection', function(data) {
 			self.removeSideSelectorsAndEmitSideSelection(data.detail);
+		});
+		
+		this.el.addEventListener('targetSelection', function(data) {
+			self.emitTargetSelection(data.detail);
 		});
 	}
 });	

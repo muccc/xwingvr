@@ -1,6 +1,6 @@
 /****           statussphere component             ****/
 AFRAME.registerComponent('statussphere', {
-	dependencies : ['commandableship'],
+	
 	
 	init: function () {
 		this.getSphere = function() {
@@ -27,6 +27,16 @@ AFRAME.registerComponent('statussphere', {
 		this.activeOff = function() {
 			this.getSphere().setAttribute('material', 'color', XWING.inactiveShipSphereColor);
 		}
+		
+		this.updateSphereStatus = function() {
+			//TODO
+			/*
+			if parentNode.getClass().contains("targetable") {color=red}
+			else if parentNode.
+			
+			*/	
+		}
+		
 
 		this.el.append(this.getSphere());
 
@@ -47,10 +57,16 @@ AFRAME.registerComponent('statussphere', {
 		this.getSphere().addEventListener('setShipInactive', function() {
 			self.activeOff();
 		});
+		
+		this.getSphere().addEventListener('updateSphereStatus', function() {
+			self.updateSphereStatus();	
+		});
+			
+		
 
 	},
 	
 	remove: function() {
-		this.el.remove(this.getSphere());
+		this.el.removeChild(this.getSphere());
 	}
 });

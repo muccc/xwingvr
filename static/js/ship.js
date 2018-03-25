@@ -33,6 +33,8 @@ var shipconfig= {
 
 
 AFRAME.registerComponent('ship', {
+	dependencies:['statusspere'],
+	
 	schema: {
 		type: {type: 'string', default: 'xwing'},
 		hull:    {type: 'int', default: 100},
@@ -113,7 +115,6 @@ AFRAME.registerComponent('ship', {
 
 		this.setMine = function() {
 			this.mine = true;
-			this.el.setAttribute("commandableship", "");
 		}
 
 		this.dots=[];

@@ -42,9 +42,11 @@ AFRAME.registerComponent('commandableactionship', {
 		this.fnordSwitchActive = function()  {
 			self.switchActive();
 		}
-		this.fnordSetTarget = function(targetId) {
-			console.log(self.el.id + " shoots at "+ targetId.detail);
-			console.log(targetId.detail);
+		this.fnordSetTarget = function(myTargetID) {
+			document.querySelector('a-scene').emit("targetSelection", {shooterID:self.el.id, targetID:myTargetID.detail});
+			
+			console.log(self.el.id + " shoots at "+ myTargetID.detail);
+			console.log(myTargetID.detail);
 		}
 		
 		this.el.addEventListener('mousedown', this.fnordSwitchActive);
