@@ -1,11 +1,6 @@
 var XWING = new Object({
 	commandSphereInactiveMaterial:"color:#0F0; opacity:0.01;",
 	
-	activeShipSphereColor 	: "#F00",
-	inactiveShipSphereColor	: "#0F0",
-	hoverShipSphereOpacity	: "0.2",
-	unhoverShipSphereOpacity: "0.01",
-	
 	teleportDistance		: 0.5,
 
 	calculatePitchAndYawForCoords:function(me, to) {

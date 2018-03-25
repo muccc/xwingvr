@@ -199,6 +199,7 @@ AFRAME.registerComponent('ship', {
 		this.config = shipconfig[this.type];
 		this.buildShip();
 		this.sceneEl = document.querySelector('a-scene');
+		this.el.setAttribute("statussphere", "");
 	}
 
 });

@@ -7,38 +7,34 @@ AFRAME.registerComponent('statussphere', {
 			if (this._sphere == undefined) {
 				this._sphere = document.createElement('a-entity');
 				this._sphere.setAttribute("geometry","primitive: sphere; radius: 0.1;");
-				this._sphere.setAttribute("material",XWING.commandSphereInactiveMaterial);
+				this._sphere.setAttribute('material', 'opacity:0.01, color:#000');
 			} 
 			return this._sphere;
 		};
 		
 		this.hoverOn = function() {
-			this.getSphere().setAttribute('material', 'opacity',XWING.hoverShipSphereOpacity);
+			this.getSphere().setAttribute('material', 'opacity',0.2);
 		}
 		
 		this.hoverOff = function() {
-			this.getSphere().setAttribute('material', 'opacity',XWING.unhoverShipSphereOpacity);	
+			this.getSphere().setAttribute('material', 'opacity',0.01);	
 		}
-		
-		this.activeOn = function() {
-			this.getSphere().setAttribute('material', 'color', XWING.activeShipSphereColor);
-		}
-		
-		this.activeOff = function() {
-			this.getSphere().setAttribute('material', 'color', XWING.inactiveShipSphereColor);
-		}
+
+
 		
 		this.updateSphereStatus = function() {
-			//TODO
-			/*
-			if parentNode.getClass().contains("targetable") {color=red}
-			else if parentNode.
-			
-			*/	
+			if (this.el.hasAttribute("commandableship")) {
+				this.getSphere().setAttribute("material","color:#0F0");
+			} else {
+				this.getSphere().setAttribute("material","color:#000");
+			}
+			console.log('updated sphere');
 		}
 		
 
 		this.el.append(this.getSphere());
+
+		this.updateSphereStatus();
 
 		var self = this;
 
@@ -49,20 +45,12 @@ AFRAME.registerComponent('statussphere', {
 		this.getSphere().addEventListener('mouseleave', function () {
 			self.hoverOff();
 		});
-		
-		this.getSphere().addEventListener('setShipActive', function() {
-			self.activeOn();
+
+
+		this.el.addEventListener('updatespherestatus', function(data) {
+			self.updateSphereStatus();
+			console.log(data);
 		});
-		
-		this.getSphere().addEventListener('setShipInactive', function() {
-			self.activeOff();
-		});
-		
-		this.getSphere().addEventListener('updateSphereStatus', function() {
-			self.updateSphereStatus();	
-		});
-			
-		
 
 	},
 	

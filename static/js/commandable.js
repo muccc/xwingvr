@@ -24,20 +24,18 @@ AFRAME.registerComponent('commandableship', {
 		  	}
 		}
 
-		this.el.setAttribute('statussphere','');
-		
 		var self = this;
 		this.fnordSwitchActive = function()  {
 			self.switchActive();
 		}
 		
 		this.el.addEventListener('mousedown', this.fnordSwitchActive); 
+		//this.el.emit('updatespherestatus');
 	},
 	remove: function() {
 		this.el.emit('clear');
 		this.el.removeEventListener('mousedown', this.fnordSwitchActive);
 		this.el.removeAttribute('commandablecontrolleractive');
-		this.el.removeAttribute('statussphere');
 	}
 });
 
