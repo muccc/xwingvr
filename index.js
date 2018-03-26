@@ -7,6 +7,9 @@ var io = require('socket.io')(http);
 
 app.use(express.static('static'))
 
+var xwingtools = require('./lib/xwingtools.js');
+
+
 var scenarios = require('./lib/scenarios.js');
 var scenario; //set in init
 
@@ -187,7 +190,8 @@ io.on('connection', function(socket){
   });
   
   socket.on('targetSelection', function(shooterID, targetID) {
-  	console.log("Da schiesst der "+shooterID+" auf den armen "+targetID);
+  	console.log("Ship "+shooterID+" shoots at "+targetID);
+  	console.log("chance to hit: "+xwingtools.calculateChanceToHit(ships[shooterID], ships[targetID]));
   });
   
 });
