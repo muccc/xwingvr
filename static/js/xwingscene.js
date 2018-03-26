@@ -33,7 +33,6 @@ AFRAME.registerComponent('xwingscene', {
 			
 			this.socket.on('nextPhase', (phase) => {
 				this.setPhase(phase);
-				//console.log("setPhase called with phase: "+phase);
 			});
 		});
 
@@ -70,7 +69,7 @@ AFRAME.registerComponent('xwingscene', {
 				  break;
 			}	
 			
-			//console.log("switched to phase: "+this.phase);
+			console.log("switched to phase: "+this.phase);
 		}
 		
 		this.enableMovementControls = function(enable) {

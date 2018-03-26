@@ -24,7 +24,7 @@ AFRAME.registerComponent('statussphere', {
 		
 		this.updateSphereStatus = function() {
 			if (this.el.getAttribute('targetable')!=null) {
-				this.getSphere().setAttribute("material","color:#F00"); //TODO: does not work yet...
+				this.getSphere().setAttribute("material","color:#F00");
 			} else if (this.el.getAttribute('commandableship')!=null) {
 				this.getSphere().setAttribute("material","color:#F00");
 			} else if (this.el.getAttribute('commandableactionship')!=null) {
@@ -32,7 +32,7 @@ AFRAME.registerComponent('statussphere', {
 			} else {
 				this.getSphere().setAttribute("material","color:#000");
 			}
-			console.log('updated sphere');
+			console.log('updated sphere of '+ this.el.id);			
 		}
 		
 

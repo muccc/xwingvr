@@ -3,8 +3,6 @@ AFRAME.registerComponent('commandableship', {
 	dependencies : ['ship'],
 	
 	init: function () {
-		console.log(this.el.id+" is now moveable");
-		
 		this.active = false;
 		this.deactivate = function () {
 		  	this.el.emit('setShipInactive');

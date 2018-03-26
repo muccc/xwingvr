@@ -4,16 +4,14 @@ AFRAME.registerComponent('commandableactionship', {
 	
 	
 	init: function () {
-		console.log("enabled action: "+ this.el.id);
+		//console.log("enabled action: "+ this.el.id);
 
 		this.active = false;
 		this.deactivate = function () {
-			//this.el.emit('setShipInactive');
 		  	this.active=false;
 		  	this.makeAllOtherShipsTargetable(false);
 		}
 		this.activate = function() {
-		  	//this.el.emit('setShipActive'); TODO: Bubble colors....
 		  	this.active=true;
 		  	this.makeAllOtherShipsTargetable(true);
 		}
@@ -29,11 +27,15 @@ AFRAME.registerComponent('commandableactionship', {
 			var els = document.querySelectorAll('.targetable');
 			for (var i = 0; i < els.length; i++) {
 				if (enable) {
-					els[i].setAttribute("targetable", "origin:"+this.el.id);
+					if (els[i].id != this.el.id) {
+						els[i].setAttribute("targetable", "origin:"+this.el.id);
+					}
 				} else {
 					els[i].removeAttribute("targetable");
 				}
+				els[i].emit('updatespherestatus');		
 			}
+		
 		}
 
 		var self = this;
@@ -42,9 +44,7 @@ AFRAME.registerComponent('commandableactionship', {
 		}
 		this.fnordSetTarget = function(myTargetID) {
 			document.querySelector('a-scene').emit("targetSelection", {shooterID:self.el.id, targetID:myTargetID.detail});
-			
 			console.log(self.el.id + " shoots at "+ myTargetID.detail);
-			console.log(myTargetID.detail);
 		}
 		
 		this.el.addEventListener('mousedown', this.fnordSwitchActive);
@@ -70,12 +70,12 @@ AFRAME.registerComponent('targetable', {
   	},
 
 	init: function() {
+		console.log(this.el.id+" is now targetable");
 		
 		var self = this;
 		this.setMyselfAsTarget = function() {
 			var originEl = document.querySelector("#"+self.data.origin);
 			originEl.emit("setTarget", self.el.id);
-			console.log(self.el.id);
 		}
 		
 		this.el.addEventListener('mousedown', this.setMyselfAsTarget);
@@ -84,7 +84,4 @@ AFRAME.registerComponent('targetable', {
 	remove: function() {
 		this.el.removeEventListener('mousedown', this.setMyselfAsTarget);
 	}
-
-
-	
 });
