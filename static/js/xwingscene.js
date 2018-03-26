@@ -25,6 +25,12 @@ AFRAME.registerComponent('xwingscene', {
 				ship.parentElement.remove(ship);
 			});
 	
+			this.socket.on('shootShip', (shooter, target) => {
+				var targetShip = document.getElementById(target.id);
+				targetShip.emit('setDamageData', data); //TODO: Does not exist yet.
+			});
+
+
 			this.socket.on('moveShip', (data) => {
 				var ship = document.getElementById(data.id);
 				ship.emit('clear');

@@ -95,9 +95,8 @@ function doPhaseAction () {
       io.emit('nextPhase', phase);
 	  break;
 	case "evaluateAction":
+	  evaluateShooting();
 	  io.emit('nextPhase', phase);
-
-
 	  nextPhase();
 	  break;
 	default:
@@ -118,6 +117,46 @@ function evaluateMovement() {
       io.emit('moveShip', ships[ship]);
     }
   }
+}
+
+function evaluateShooting() {
+  for (var ship in ships) {
+    if (ships[ship].stagedTargetID) {
+      var targetID = ships[ship].stagedTargetID;
+      console.log("Ship "+ships[ship].id+" shoots at "+targetID);
+      
+      var chanceToHit = xwingtools.calculateChanceToHit(ships[ship], ships[targetID]);
+      console.log("chance to hit: "+chanceToHit);
+
+      var doesHit = chanceToHit > Math.random();
+      console.log("hits: "+doesHit);
+
+      if (doesHit) {      
+        var damage = ships[ship].laser; //TODO: should be at least a little random
+        if (ships[targetID].shields == 0) {
+        	ships[targetID].hull = ships[targetID].hull-damage;
+        } else if (ships[targetID].shields>0) {
+          ships[targetID].shields = ships[targetID].shields-damage;
+          if (ships[targetID].shields<0) {
+  	        ships[targetID].hull = ships[targetID].hull+ships[targetID].shields;
+    	    }
+    	  }
+        io.emit('shoot', ships[ship], ships[targetID]);
+  
+    	  if (ships[targetID].hull <= 0) {
+    	    ships[targetID].hull = 0;
+    	    ships[targetID].destroyed = true;
+    	    io.emit('removeShip', ships[targetID]);
+    	  }
+    	  console.log("Hull:"+ships[targetID].hull+" Shields:"+ships[targetID].shields);
+  	  }
+      ships[ship].stagedTargetID = null;
+
+    }
+  }
+    
+  	
+
 }
 
 function createShips() {
@@ -190,8 +229,7 @@ io.on('connection', function(socket){
   });
   
   socket.on('targetSelection', function(shooterID, targetID) {
-  	console.log("Ship "+shooterID+" shoots at "+targetID);
-  	console.log("chance to hit: "+xwingtools.calculateChanceToHit(ships[shooterID], ships[targetID]));
+  	ships[shooterID].stagedTargetID = targetID;
   });
   
 });
