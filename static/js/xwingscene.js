@@ -34,7 +34,12 @@ AFRAME.registerComponent('xwingscene', {
 			this.socket.on('moveShip', (data) => {
 				var ship = document.getElementById(data.id);
 				ship.emit('clear');
-				ship.emit('setMovementData', data);
+				ship.emit('setMovementData', data); //TODO: Do not move ship right away!
+			});
+			
+			this.socket.on('movementDuration', (data) => {
+			  this.movementDuration = data;
+			  console.log("movementDuration: "+this.movementDuration);
 			});
 			
 			this.socket.on('nextPhase', (phase) => {
@@ -42,41 +47,41 @@ AFRAME.registerComponent('xwingscene', {
 			});
 		});
 
-		this.setPhase = function(phase) {
-			
-			
-			var oldphase = this.phase;
-			
-			switch (oldphase) {
-				case "setMovement":
-				  this.enableMovementControls(false);
-			      break;
-			    case "evaluateMovement":
-			      break;
-				case "setAction":
-				  this.enableTargetControls(false);
-				  break;
-				case "evaluateAction":
-				  break;
-			}	
-			
-			this.phase = phase;
-
-			switch (this.phase) {
-				case "setMovement":
-				  this.enableMovementControls(true);
-			      break;
-			    case "evaluateMovement":
-			      break;
-				case "setAction":
-				  this.enableTargetControls(true);
-				  break;
-				case "evaluateAction":
-				  break;
-			}	
-			
-			console.log("switched to phase: "+this.phase);
-		}
+    this.setPhase = function(phase) {
+      var oldphase = this.phase;
+      
+      switch (oldphase) {
+        case "setMovement":
+          this.enableMovementControls(false);
+          break;
+        case "evaluateMovement":
+          //this.finalizeMovementAnimation(); //TODO;
+          break;
+        case "setAction":
+          this.enableTargetControls(false);
+          break;
+        case "evaluateAction":
+          break;
+      }	
+      
+      this.phase = phase;
+      
+      switch (this.phase) {
+        case "setMovement":
+          this.enableMovementControls(true);
+          break;
+        case "evaluateMovement":
+          this.startMovementAnimation();
+          break;
+        case "setAction":
+          this.enableTargetControls(true);
+          break;
+        case "evaluateAction":
+          break;
+      }	
+      
+      console.log("switched to phase: "+this.phase);
+    }
 		
 		this.enableMovementControls = function(enable) {
 			var els = document.querySelectorAll('.commandableship');
@@ -86,6 +91,18 @@ AFRAME.registerComponent('xwingscene', {
 				} else {
 					els[i].removeAttribute("commandableship");
 				}
+			}
+		}
+		
+		this.startMovementAnimation = function() {
+		  timing = {
+		    start: Date.now(),
+		    end: Date.now()+this.movementDuration  
+		  }
+		  
+			var els = document.querySelectorAll('.ship');
+			for (var i = 0; i < els.length; i++) {
+        els[i].emit('startMovementAnimation', timing);
 			}
 		}
 		

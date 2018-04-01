@@ -43,6 +43,7 @@ AFRAME.registerComponent('ship', {
 
 	init:function(){
 		this.toRel=function(pos, rot, sel, rel) {
+      //console.log(pos, rot, sel, rel);
 
 			var minSpeed = this.config.mobility.minSpeed;
 			var maxSpeed = this.config.mobility.maxSpeed;
@@ -56,7 +57,7 @@ AFRAME.registerComponent('ship', {
 			var newYaw = rot.y - sel.yaw*maxYaw*rel*rel*2;
 			var dYaw = (newYaw+rot.y)/2;
 
-			var newRoll = -sel.yaw * maxRoll * rel*rel;
+			var newRoll = rot.z*(1-rel*rel) - sel.yaw*maxRoll*rel*rel;
 
 			var speed = (sel.throttle*(maxSpeed-minSpeed)+minSpeed)*rel;
 
@@ -155,21 +156,57 @@ AFRAME.registerComponent('ship', {
 			
 			var data = {};
 			data.to=this.to(position, rotation, selectedYawPitchThrottle);
+			data.to.selYaw = selectedYawPitchThrottle.yaw;
+			data.to.selPitch = selectedYawPitchThrottle.pitch;
+			data.to.selThrottle = selectedYawPitchThrottle.throttle;
+			
 			data.id=this.el.getAttribute('id');
 			this.sceneEl.emit('movementSelection', data);
 
 			this.el.removeAttribute('commandablecontrolleractive');
 			this.active = false;
 		}
+		
+		this.resetMovementData = function() {
+		  this.stagedMovementData = {};  
+		  this.stagedMovementDataPresent = false;
+		}
 
 		this.setMovementData = function(data) {
-			this.el.setAttribute("position", data.pos);
-			this.el.setAttribute("rotation", data.rot);
+			this.resetMovementData();
+			this.stagedMovementData.origPos = this.el.getAttribute('position');
+			this.stagedMovementData.origRot = this.el.getAttribute('rotation');
+			this.stagedMovementData.finalPos = data.pos;
+			this.stagedMovementData.finalRot = data.rot;
+			this.stagedMovementData.stagedSel = data.stagedSel;
+			this.stagedMovementDataPresent = true;
+			console.log (this.stagedMovementData);
 		}
 		
 		this.clear = function() {
 			this.clearDots();
 			this.el.removeAttribute('commandablecontrolleractive');
+		}
+		
+		this.updatePositionForAnimation = function() {
+		  var duration = this.movementTiming.end - this.movementTiming.start;
+		  var relativeTime = (Date.now() - this.movementTiming.start)/duration;
+		  
+		  if (relativeTime >= 1 && this.stagedMovementDataPresent) {
+	      this.movementAnimationActive = false;  
+  			this.el.setAttribute("position", this.stagedMovementData.finalPos);
+  			this.el.setAttribute("rotation", this.stagedMovementData.finalRot);
+  			this.resetMovementData();
+	    } else if (this.stagedMovementDataPresent) {
+  		  //NOW MOVE!!
+  		  var staged = this.stagedMovementData; 
+  		  var moveTo = this.toRel(staged.origPos, staged.origRot, staged.stagedSel, relativeTime);
+  		  var newPosition={x:moveTo.x, y:moveTo.y, z:moveTo.z};
+  		  var newRotation={x:moveTo.pitch, y:moveTo.yaw, z:moveTo.roll};
+  		   
+        this.el.setAttribute("position", newPosition);
+        this.el.setAttribute("rotation", newRotation);
+		  }
 		}
 
 		//event listeners
@@ -190,6 +227,10 @@ AFRAME.registerComponent('ship', {
 			self.setMovementData(data.detail);
 		});
 
+    this.el.addEventListener('startMovementAnimation', function(data) {
+      self.movementTiming = data.detail;
+      self.movementAnimationActive = true;
+    });
 
 		//actual constructor
 		this.type = this.data.type;
@@ -198,9 +239,18 @@ AFRAME.registerComponent('ship', {
 		this.mine = false;
 		this.config = shipconfig[this.type];
 		this.buildShip();
+    this.resetMovementData();
 		this.sceneEl = document.querySelector('a-scene');
 		this.el.setAttribute("statussphere", "");
+		
+	},
+	
+	tick: function() {
+	  if (this.movementAnimationActive) {
+	    this.updatePositionForAnimation();
+	  }  
 	}
+	
 
 });
 

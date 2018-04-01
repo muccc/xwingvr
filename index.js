@@ -16,7 +16,9 @@ var scenario; //set in init
 // Phases: setMovement / evaluateMovement / setAction / evaluateAction
 var phase;
 var setMovementTimeout;
+var setMovementEvaluationTimeout;
 var setActionTimeout;
+
 
 var sockets = [];
 var ships = {};
@@ -28,6 +30,7 @@ function init() {
 	ships = createShips();
 
 	setMovementTimeout = scenario.global.movementPhaseDuration  * 1000;
+	setMovementEvaluationTimeout = scenario.global.movementEvaluationPhaseDuration * 1000;
 	setActionTimeout = scenario.global.actionPhaseDuration  * 1000;
 
 	
@@ -88,7 +91,7 @@ function doPhaseAction () {
     case "evaluateMovement":
       evaluateMovement();
       io.emit('nextPhase', phase);
-      nextPhase();
+      setTimeout(nextPhase, setMovementEvaluationTimeout);
       break;
 	case "setAction":
       setTimeout(nextPhase, setActionTimeout);
@@ -117,6 +120,7 @@ function evaluateMovement() {
       io.emit('moveShip', ships[ship]);
     }
   }
+  io.emit('movementDuration', setMovementEvaluationTimeout);
 }
 
 function evaluateShooting() {
@@ -215,17 +219,27 @@ io.on('connection', function(socket){
 
   socket.on('movementSelection', function(to, shipID){
     console.log("Got move: " + to + " From: " + playerID + " Ship: " + shipID);
-	var myPos = {};
-	myPos.x = to.x;
-	myPos.y = to.y
-	myPos.z = to.z
-	ships[shipID].stagedPos = myPos;
-
-	var myRot = {};
-	myRot.x = to.pitch;
-	myRot.y = to.yaw;
-	myRot.z = to.roll;
-	ships[shipID].stagedRot = myRot;
+    
+    
+    var mySel = {};
+    mySel.yaw = to.selYaw;
+    mySel.pitch = to.selPitch;
+    mySel.throttle = to.selThrottle;
+  	ships[shipID].stagedSel = mySel;
+    
+    //TODO: For this should be evaluated by old position and the selectedYawPitchThrottle!!
+  	var myPos = {};
+  	myPos.x = to.x;
+  	myPos.y = to.y
+  	myPos.z = to.z
+  	ships[shipID].stagedPos = myPos;
+  
+  	var myRot = {};
+  	myRot.x = to.pitch;
+  	myRot.y = to.yaw;
+  	myRot.z = to.roll;
+  	ships[shipID].stagedRot = myRot;
+  	
   });
   
   socket.on('targetSelection', function(shooterID, targetID) {
