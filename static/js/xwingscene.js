@@ -55,7 +55,7 @@ AFRAME.registerComponent('xwingscene', {
           this.enableMovementControls(false);
           break;
         case "evaluateMovement":
-          //this.finalizeMovementAnimation(); //TODO;
+          this.abortMovementAnimation();
           break;
         case "setAction":
           this.enableTargetControls(false);
@@ -103,6 +103,13 @@ AFRAME.registerComponent('xwingscene', {
 			var els = document.querySelectorAll('.ship');
 			for (var i = 0; i < els.length; i++) {
         els[i].emit('startMovementAnimation', timing);
+			}
+		}
+		
+		this.abortMovementAnimation = function(){
+			var els = document.querySelectorAll('.ship');
+			for (var i = 0; i < els.length; i++) {
+        els[i].emit('abortMovementAnimation',"");
 			}
 		}
 		

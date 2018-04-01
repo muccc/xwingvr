@@ -41,7 +41,9 @@ AFRAME.registerComponent('ship', {
 		shields: {type: 'int', default: 0}
 	},
 
-	init:function(){
+	init:function(){ 
+	  
+	  //TODO: this function should be accessable from front- and backend...
 		this.toRel=function(pos, rot, sel, rel) {
       //console.log(pos, rot, sel, rel);
 
@@ -180,7 +182,6 @@ AFRAME.registerComponent('ship', {
 			this.stagedMovementData.finalRot = data.rot;
 			this.stagedMovementData.stagedSel = data.stagedSel;
 			this.stagedMovementDataPresent = true;
-			console.log (this.stagedMovementData);
 		}
 		
 		this.clear = function() {
@@ -231,6 +232,10 @@ AFRAME.registerComponent('ship', {
       self.movementTiming = data.detail;
       self.movementAnimationActive = true;
     });
+    
+    this.el.addEventListener('abortMovementAnimation', function() {
+      self.resetMovementData();
+    });
 
 		//actual constructor
 		this.type = this.data.type;
@@ -242,7 +247,6 @@ AFRAME.registerComponent('ship', {
     this.resetMovementData();
 		this.sceneEl = document.querySelector('a-scene');
 		this.el.setAttribute("statussphere", "");
-		
 	},
 	
 	tick: function() {
