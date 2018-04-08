@@ -26,6 +26,21 @@ var players = {};
 
 var game;
 
+var stdin = process.openStdin();
+
+stdin.addListener("data", function(d) {
+  s = d.toString().trim();
+
+  switch(s){
+    case "n":
+      nextPhase();
+      break;
+    default:
+      "Command " + s + " not available";
+      break;
+  }
+});
+
 class Game {
   constructor(scenario) {
     this.teams = [];
