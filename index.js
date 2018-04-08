@@ -7,12 +7,18 @@ var io = require('socket.io')(http);
 
 app.use(express.static('static'))
 
+var xwingtools = require('./lib/xwingtools.js');
+
+
 var scenarios = require('./lib/scenarios.js');
 var scenario; //set in init
 
 // Phases: init / setMovement / evaluateMovement / setAction / evaluateAction
 var phase;
 var setMovementTimeout;
+var setMovementEvaluationTimeout;
+var setActionTimeout;
+
 
 var sockets = [];
 var ships = {};
@@ -26,10 +32,14 @@ function init() {
 
   ships = createShips();
 
-  setMovementTimeout = scenario.global.phaseDuration  * 1000;
+	setMovementTimeout = scenario.global.movementPhaseDuration  * 1000;
+	setMovementEvaluationTimeout = scenario.global.movementEvaluationPhaseDuration * 1000;
+	setActionTimeout = scenario.global.actionPhaseDuration  * 1000;
 
+
+	phase = "init";
   console.log('init.. done');
-  nextPhase();
+	nextPhase();
 }
 
 function getPlayerID(socketID) {
@@ -51,15 +61,26 @@ function checkAllReady() {
 
 function nextPhase() {
   switch(phase) {
-    case "init":
-      phase = "setMovement";
-      break;
+  	case "init":
+  	  phase = "setMovement";
+  	  break;
     case "setMovement":
       phase = "evaluateMovement";
       break;
     case "evaluateMovement":
+      phase = "setAction"
+      break;
+    case "setAction":
+      phase = "evaluateAction";
+      break;
+    case "evaluateAction":
       phase = "setMovement";
       break;
+    default:
+	  console.log("BUG: no next action for phase " + phase);
+      phase = "setMovement";
+      break;
+
   }
   doPhaseAction();
 }
@@ -69,12 +90,27 @@ function doPhaseAction () {
   switch(phase) {
     case "setMovement":
       setTimeout(nextPhase, setMovementTimeout);
+      io.emit('nextPhase', phase);
       break;
     case "evaluateMovement":
       evaluateMovement();
-      nextPhase();
+      io.emit('nextPhase', phase);
+      setTimeout(nextPhase, setMovementEvaluationTimeout);
+      break;
+	case "setAction":
+      setTimeout(nextPhase, setActionTimeout);
+      io.emit('nextPhase', phase);
+	  break;
+	case "evaluateAction":
+	  evaluateShooting();
+	  io.emit('nextPhase', phase);
+	  nextPhase();
+	  break;
+	default:
+	  console.log("BUG: no action for phase " + phase);
       break;
   }
+
 }
 
 function evaluateMovement() {
@@ -88,6 +124,47 @@ function evaluateMovement() {
       io.emit('moveShip', ships[ship]);
     }
   }
+  io.emit('movementDuration', setMovementEvaluationTimeout);
+}
+
+function evaluateShooting() {
+  for (var ship in ships) {
+    if (ships[ship].stagedTargetID) {
+      var targetID = ships[ship].stagedTargetID;
+      console.log("Ship "+ships[ship].id+" shoots at "+targetID);
+
+      var chanceToHit = xwingtools.calculateChanceToHit(ships[ship], ships[targetID]);
+      console.log("chance to hit: "+chanceToHit);
+
+      var doesHit = chanceToHit > Math.random();
+      console.log("hits: "+doesHit);
+
+      if (doesHit) {
+        var damage = ships[ship].laser; //TODO: should be at least a little random
+        if (ships[targetID].shields == 0) {
+        	ships[targetID].hull = ships[targetID].hull-damage;
+        } else if (ships[targetID].shields>0) {
+          ships[targetID].shields = ships[targetID].shields-damage;
+          if (ships[targetID].shields<0) {
+  	        ships[targetID].hull = ships[targetID].hull+ships[targetID].shields;
+    	    }
+    	  }
+        io.emit('shoot', ships[ship], ships[targetID]);
+
+    	  if (ships[targetID].hull <= 0) {
+    	    ships[targetID].hull = 0;
+    	    ships[targetID].destroyed = true;
+    	    io.emit('removeShip', ships[targetID]);
+    	  }
+    	  console.log("Hull:"+ships[targetID].hull+" Shields:"+ships[targetID].shields);
+  	  }
+      ships[ship].stagedTargetID = null;
+
+    }
+  }
+
+
+
 }
 
 function createShips() {
@@ -130,6 +207,7 @@ io.on('connection', function(socket){
 		}
 	}
 	console.log('Player ' + playerID + ' joined ' + side);
+	socket.emit('nextPhase', phase);
   });
 
   socket.on('disconnect', function(){
@@ -145,18 +223,33 @@ io.on('connection', function(socket){
 
   socket.on('movementSelection', function(to, shipID){
     console.log("Got move: " + to + " From: " + playerID + " Ship: " + shipID);
-	var myPos = {};
-	myPos.x = to.x;
-	myPos.y = to.y
-	myPos.z = to.z
-	ships[shipID].stagedPos = myPos;
 
-	var myRot = {};
-	myRot.x = to.pitch;
-	myRot.y = to.yaw;
-	myRot.z = to.roll;
-	ships[shipID].stagedRot = myRot;
+
+    var mySel = {};
+    mySel.yaw = to.selYaw;
+    mySel.pitch = to.selPitch;
+    mySel.throttle = to.selThrottle;
+  	ships[shipID].stagedSel = mySel;
+
+    //TODO: For this should be evaluated by old position and the selectedYawPitchThrottle!!
+  	var myPos = {};
+  	myPos.x = to.x;
+  	myPos.y = to.y
+  	myPos.z = to.z
+  	ships[shipID].stagedPos = myPos;
+
+  	var myRot = {};
+  	myRot.x = to.pitch;
+  	myRot.y = to.yaw;
+  	myRot.z = to.roll;
+  	ships[shipID].stagedRot = myRot;
+
   });
+
+  socket.on('targetSelection', function(shooterID, targetID) {
+  	ships[shooterID].stagedTargetID = targetID;
+  });
+
 });
 
 http.listen(8080, function(){
