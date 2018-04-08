@@ -24,11 +24,76 @@ var sockets = [];
 var ships = {};
 var players = {};
 
+var game;
+
+class Game {
+  constructor(scenario) {
+    this.teams = [];
+    this.players = [];
+    this.scenario = scenario;
+
+    this.initTeams();
+  }
+
+  initTeams() {
+    var self = this;
+    ["rebel", "empire"].forEach(function (teamName) {
+      let team = new Team(teamName);
+      self.teams.push(team);
+    });
+  }
+
+  addPlayer(player) {
+    this.players.push(player);
+  }
+
+  removePlayer(player) {
+    var index = this.players.indexOf(player);
+    if (index !== -1) this.players.splice(index,1);
+  }
+
+  checkAllReady() {
+    var self = this;
+    var allReady = true;
+
+    this.players.forEach(function (player) {
+      if (player.phaseReady == false) {
+        allReady = false;
+      }
+    })
+
+    if(allReady) {
+      nextPhase();
+    }
+
+  }
+
+}
+
+class Team {
+  constructor(name) {
+    this.name = name;
+  }
+}
+
+class Player {
+  constructor(socketId) {
+    this.socketId = socketId;
+    this.phaseReady = false;
+  }
+
+  get id() {
+    return this.socketId;
+  }
+}
+
 phase = "init";
 
 function init() {
   console.log('init..');
   scenario = scenarios.basic; //this should be configurable...
+
+  game = new Game(scenario);
 
   ships = createShips();
 
@@ -48,15 +113,6 @@ function getPlayerID(socketID) {
       return playerID;
     }
   }
-}
-
-function checkAllReady() {
-  for (var playerID in players) {
-    if (players[playerID].phaseReady == false) {
-      return;
-    }
-  }
-  nextPhase();
 }
 
 function nextPhase() {
@@ -168,15 +224,15 @@ function evaluateShooting() {
 }
 
 function createShips() {
-	var result = {};
-	for (var ship in scenario.rebel) {
-    	result[scenario.rebel[ship].id] = scenario.rebel[ship];
-    	result[scenario.rebel[ship].id].side = 'rebel';
+    var result = {};
+    for (var ship in scenario.rebel) {
+        result[scenario.rebel[ship].id] = scenario.rebel[ship];
+        result[scenario.rebel[ship].id].side = 'rebel';
     }
 
-	for (var ship in scenario.empire) {
-    	result[scenario.empire[ship].id] = scenario.empire[ship];
-    	result[scenario.empire[ship].id].side = 'empire';
+    for (var ship in scenario.empire) {
+        result[scenario.empire[ship].id] = scenario.empire[ship];
+        result[scenario.empire[ship].id].side = 'empire';
     }
     return result;
 }
@@ -189,16 +245,11 @@ io.on('connection', function(socket){
   //send other ships to user:
   var shipArray = Object.values(ships);
   for (var i = 0; i<shipArray.length; i++) {
-  	socket.emit('ship', shipArray[i]);
+    socket.emit('ship', shipArray[i]);
   }
 
-  //to begin with
-  var playerID = socket.id;
-
-  players[playerID] = {};
-  players[playerID].socketID = socket.id;
-  players[playerID].phaseReady = false;
-
+  var player = new Player(socket.id);
+  game.players.push(player);
 
   socket.on('joinSide', function(side) {
   	for (var i = 0; i<shipArray.length; i++) {
@@ -206,23 +257,24 @@ io.on('connection', function(socket){
 		  	socket.emit('yourship', shipArray[i]);
 		}
 	}
-	console.log('Player ' + playerID + ' joined ' + side);
+	console.log('Player ' + player.id + ' joined ' + side);
 	socket.emit('nextPhase', phase);
   });
 
   socket.on('disconnect', function(){
-  	sockets = sockets.filter(item => item !== this)
-    delete(players[playerID]);
+    sockets = sockets.filter(item => item !== this)
+    game.removePlayer(player);
+    delete(player);
     console.log(socket.id+' disconnected. now ' + sockets.length + " users in total");
   });
 
   socket.on('phaseReady', function(){
-    players[playerID].phaseReady = true;
-    checkAllReady();
+    player.phaseReady = true;
+    game.checkAllReady();
   });
 
   socket.on('movementSelection', function(to, shipID){
-    console.log("Got move: " + to + " From: " + playerID + " Ship: " + shipID);
+    console.log("Got move: " + to + " From: " + player.id + " Ship: " + shipID);
 
 
     var mySel = {};
