@@ -18,7 +18,7 @@ var phase;
 var setMovementTimeout;
 var setMovementEvaluationTimeout;
 var setActionTimeout;
-
+var timeout;
 
 var sockets = [];
 var ships = {};
@@ -143,18 +143,19 @@ function nextPhase() {
 
 function doPhaseAction () {
   console.log("Do Phase Action: " + phase);
+  clearTimeout(timeout);
   switch(phase) {
     case "setMovement":
-      setTimeout(nextPhase, setMovementTimeout);
+      timeout = setTimeout(nextPhase, setMovementTimeout);
       io.emit('nextPhase', phase);
       break;
     case "evaluateMovement":
       evaluateMovement();
       io.emit('nextPhase', phase);
-      setTimeout(nextPhase, setMovementEvaluationTimeout);
+      timeout = setTimeout(nextPhase, setMovementEvaluationTimeout);
       break;
 	case "setAction":
-      setTimeout(nextPhase, setActionTimeout);
+      timeout = setTimeout(nextPhase, setActionTimeout);
       io.emit('nextPhase', phase);
 	  break;
 	case "evaluateAction":
