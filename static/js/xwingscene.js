@@ -5,19 +5,19 @@ AFRAME.registerComponent('xwingscene', {
     this.socket = io();
     this.socket.on('connect', () => {
       this.socket.on('ship',(data) => {
-          var ship = document.createElement('a-entity');
-          ship.setAttribute("id",data.id);
+        var ship = document.createElement('a-entity');
+        ship.setAttribute("id",data.id);
         ship.setAttribute("ship", "type:"+data.type+"; hull:"+data.hull+"; shields:"+data.shields+";");
-          ship.setAttribute("position", data.pos);
-          ship.setAttribute("rotation", data.rot);
-          ship.className = "targetable";
+        ship.setAttribute("position", data.pos);
+        ship.setAttribute("rotation", data.rot);
+        ship.className = "targetable";
 
-          this.el.append(ship);
+        this.el.append(ship);
       });
 
       this.socket.on('yourship', (data) => {
-          var ship = document.querySelector('#'+data.id);
-          ship.className += " commandableship";
+        var ship = document.querySelector('#'+data.id);
+        ship.className += " commandableship";
       });
 
       this.socket.on('removeShip',(data) => {
