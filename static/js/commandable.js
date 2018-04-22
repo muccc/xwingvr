@@ -155,3 +155,25 @@ AFRAME.registerComponent('commandablecontrolleractive', {
 	}
 
 });
+
+window.addEventListener('load', function() {
+  var assets = [{
+    element:'img',
+    id:"flightcomputer",
+    src:"img/flightcomputer.png"
+  },{
+    element:'img',
+    id:"throttle",
+    src:"img/throttle.png"
+  },{
+    element:'img',
+    id:"go",
+    src:"img/go.png"
+  }];
+  
+  assets.forEach(function(asset) {
+    var element = XWING.generateElementByJSON(asset);
+    document.querySelector('a-assets').appendChild(element);  
+  });
+
+});
