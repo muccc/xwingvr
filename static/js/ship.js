@@ -102,7 +102,6 @@ AFRAME.registerComponent('ship', {
       data.id=this.el.getAttribute('id');
       this.sceneEl.emit('movementSelection', data);
 
-      this.el.removeAttribute('commandablecontrolleractive');
       this.active = false;
     }
 
@@ -123,7 +122,6 @@ AFRAME.registerComponent('ship', {
 
     this.clear = function() {
       this.clearDots();
-      this.el.removeState('movementInterfaceActive');
     }
 
     this.updatePositionForAnimation = function() {

@@ -34,8 +34,10 @@ AFRAME.registerComponent('commandableship', {
 
       var pos = el.getAttribute('position');
 
-      var selectionArea = document.createElement('a-entity');
-      selectionArea.setAttribute('position',""+pos.x+" "+pos.y+" "+pos.z);
+      var selectionArea = XWING.generateElementByJSON({
+        element: 'a-entity',
+        position: pos
+      });
 
       var cameraPos = (new THREE.Vector3()).setFromMatrixPosition(document.querySelector('[camera]').object3D.matrixWorld);
 
@@ -95,6 +97,7 @@ AFRAME.registerComponent('commandableship', {
       goButtonArea.setAttribute('material', 'src:#go');
       goButtonArea.addEventListener('mousedown', function(evt){
         el.emit('doMove',{yaw:self.moveXSelection,pitch:self.moveYSelection,throttle:self.throttleSelection});
+        el.removeState('movementInterfaceActive');
       });
       self.goButtonArea = goButtonArea;
       self.selectionArea.append(goButtonArea);
@@ -137,11 +140,11 @@ AFRAME.registerComponent('commandableship', {
     this.el.addEventListener('stateremoved', this.movementInterfaceInactiveEventListener);
   },
   remove: function() {
+    this.el.removeState('movementInterfaceActive');
     this.el.removeEventListener('mousedown', this.switchActive);
     this.el.removeEventListener('stateremoved', this.movementInterfaceInactiveEventListener);
     this.el.removeEventListener('stateadded', this.movementInterfaceActiveEventListener);
 
-    this.el.removeState('movementInterfaceActive');
     this.el.emit('clear');
   },
   tick: function() {
