@@ -9,7 +9,8 @@ app.use(express.static('static'))
 
 var xwingtools = require('./lib/xwingtools.js');
 
-
+var battlefields = require('./lib/battlefields.js');
+var battlefield; //set in init
 var scenarios = require('./lib/scenarios.js');
 var scenario; //set in init
 
@@ -46,6 +47,7 @@ class Game {
     this.teams = [];
     this.players = [];
     this.scenario = scenario;
+    this.battlefield = battlefields[this.scenario.global.battlefield];
 
     this.initTeams();
   }
@@ -65,6 +67,10 @@ class Game {
   removePlayer(player) {
     var index = this.players.indexOf(player);
     if (index !== -1) this.players.splice(index,1);
+  }
+  
+  getBattlefield() {
+    return this.battlefield;
   }
 
   checkAllReady() {
@@ -258,6 +264,8 @@ function createShips() {
 io.on('connection', function(socket){
   sockets.push(socket);
   console.log(socket.id+' connected. now ' + sockets.length + " users in total.");
+  socket.emit('battlefield', game.getBattlefield());
+  
   //send other ships to user:
   var shipArray = Object.values(ships);
   for (var i = 0; i<shipArray.length; i++) {

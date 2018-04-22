@@ -45,6 +45,10 @@ AFRAME.registerComponent('xwingscene', {
 			this.socket.on('nextPhase', (phase) => {
 				this.setPhase(phase);
 			});
+			
+			this.socket.on('battlefield', (bf) => {
+			  this.renderBattlefieldScenery(bf);
+			});
 		});
 
     this.setPhase = function(phase) {
@@ -148,7 +152,23 @@ AFRAME.registerComponent('xwingscene', {
 			}
 		}
 		
+
 		var self = this;
+
+		this.renderBattlefieldScenery = function(bf) {
+		  var assetEl = document.querySelector('a-assets');
+		  
+      bf.assets.forEach(function(asset) {
+        assetEl.appendChild(XWING.generateElementByJSON(asset));
+      });
+
+
+      bf.scenery.forEach(function(part) {
+        self.el.appendChild(XWING.generateElementByJSON(part));
+      });
+		  
+		}
+		
 		this.el.addEventListener('movementSelection', function(data) {
 			self.emitMovementSelection(data.detail);
 		});
