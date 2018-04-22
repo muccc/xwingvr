@@ -26,6 +26,4 @@ var XWING = new Object({
 
     return el;
   }
-  
-    
 });
