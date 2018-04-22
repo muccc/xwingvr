@@ -162,3 +162,12 @@ AFRAME.registerComponent('laser-teleport', {
    	
   }
 });
+
+window.addEventListener('load', function() {
+  var teleportEntity = XWING.generateElementByJSON({
+    element:'a-entity',
+    'laser-teleport':''
+  });
+  
+  document.querySelector('a-scene').appendChild(teleportEntity);
+});

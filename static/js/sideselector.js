@@ -14,7 +14,7 @@ AFRAME.registerComponent('sideselector', {
   }
 });
 
-window.onload = function (){
+window.addEventListener('load', function (){
   var rebelSelectorImage = XWING.generateElementByJSON(
     {
       element: 'img',
@@ -51,5 +51,5 @@ window.onload = function (){
 
   scene.appendChild(rebelSideSelector);
   scene.appendChild(empireSideSelector);
-};
+});
 
