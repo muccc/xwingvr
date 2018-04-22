@@ -1,5 +1,6 @@
 AFRAME.registerComponent('xwingscene', {
   init: function () {
+    var self = this;
     this.phase = "init";
 
     this.socket = io();
@@ -151,9 +152,6 @@ AFRAME.registerComponent('xwingscene', {
         this.socket.emit('joinSide','empire');
       }
     }
-
-
-    var self = this;
 
     this.renderBattlefieldScenery = function(bf) {
       var assetEl = document.querySelector('a-assets');

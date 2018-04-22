@@ -123,7 +123,7 @@ AFRAME.registerComponent('ship', {
 
     this.clear = function() {
       this.clearDots();
-      this.el.removeAttribute('commandablecontrolleractive');
+      this.el.removeState('movementInterfaceActive');
     }
 
     this.updatePositionForAnimation = function() {

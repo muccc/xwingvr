@@ -25,5 +25,11 @@ var XWING = new Object({
     }
 
     return el;
+  },
+
+  removeElement: function(el){
+    if(el.parentNode){
+    el.parentNode.removeChild(el);
+    }
   }
 });
