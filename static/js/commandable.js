@@ -1,5 +1,5 @@
 /****           commandable component             ****/
-AFRAME.registerComponent('commandableship', {
+AFRAME.registerComponent('commandable', {
   dependencies : ['ship'],
 
   init: function () {
@@ -34,28 +34,26 @@ AFRAME.registerComponent('commandableship', {
 
       var pos = el.getAttribute('position');
 
-      var selectionArea = XWING.generateElementByJSON({
-        element: 'a-entity',
-        position: pos
-      });
-
       var cameraPos = (new THREE.Vector3()).setFromMatrixPosition(document.querySelector('[camera]').object3D.matrixWorld);
 
       var angle = XWING.calculatePitchAndYawForCoords(pos, cameraPos);
 
-      selectionArea.setAttribute('rotation',""+angle.pitch+" "+angle.yaw+" 0");
+      this.selectionArea = XWING.generateElementByJSON({
+        element: 'a-entity',
+        position: pos,
+        rotation: ""+angle.pitch+" "+angle.yaw+" 0"
+      });
 
+      document.querySelector('a-scene').append(this.selectionArea);
 
-      self.selectionArea = selectionArea;
-      document.querySelector('a-scene').append(selectionArea);
-
-
-      var turnSelectionArea = document.createElement('a-entity');
-      turnSelectionArea.setAttribute('geometry','primitive:plane; height:0.2; width:0.2;');
-      turnSelectionArea.setAttribute('position',"0 -0.2 0");
-      turnSelectionArea.setAttribute('material', 'src:#flightcomputer');
-      turnSelectionArea.addEventListener('mousedown', function(evt){
-        if(evt.target==turnSelectionArea) {
+      this.turnSelectionArea = XWING.generateElementByJSON({
+        element: 'a-entity',
+        geometry: 'primitive:plane; height:0.2; width:0.2;',
+        position: '0 -0.2 0',
+        material: 'src:#flightcomputer'
+      });
+      this.turnSelectionArea.addEventListener('mousedown', function(evt){
+        if(evt.target==self.turnSelectionArea) {
           var xRel = evt.detail.intersection.uv.x;
           var yRel = evt.detail.intersection.uv.y;
 
@@ -69,17 +67,18 @@ AFRAME.registerComponent('commandableship', {
           el.emit('doMoveGhost',{yaw:self.moveXSelection,pitch:self.moveYSelection,throttle:self.throttleSelection});
         }
       });
-      self.moveXSelection = 0;
-      self.moveYSelection = 0;
-      self.turnSelectionArea = turnSelectionArea;
-      self.selectionArea.append(turnSelectionArea);
+      this.moveXSelection = 0;
+      this.moveYSelection = 0;
+      this.selectionArea.append(this.turnSelectionArea);
 
-      var throttleSelectionArea = document.createElement('a-entity');
-      throttleSelectionArea.setAttribute('geometry','primitive:plane; height:0.2; width:0.025;');
-      throttleSelectionArea.setAttribute('position',"-0.1125 -0.2 0");
-      throttleSelectionArea.setAttribute('material', 'src:#throttle');
-      throttleSelectionArea.addEventListener('mousedown', function(evt){
-        if(evt.target==throttleSelectionArea) {
+      this.throttleSelectionArea = XWING.generateElementByJSON({
+        element: 'a-entity',
+        geometry: 'primitive:plane; height:0.2; width:0.025;',
+        position: '-0.1125 -0.2 0',
+        material: 'src:#throttle'
+      });
+      this.throttleSelectionArea.addEventListener('mousedown', function(evt){
+        if(evt.target==self.throttleSelectionArea) {
           var yRel = evt.detail.intersection.uv.y;
           self.throttleSelection = yRel;
           var yAbs = (yRel-0.5)*0.2;
@@ -87,37 +86,39 @@ AFRAME.registerComponent('commandableship', {
           el.emit('doMoveGhost',{yaw:self.moveXSelection,pitch:self.moveYSelection,throttle:self.throttleSelection});
         }
       });
-      self.throttleSelection = 0.5;
-      self.throttleSelectionArea = throttleSelectionArea;
-      self.selectionArea.append(throttleSelectionArea);
+      this.throttleSelection = 0.5;
+      this.selectionArea.append(this.throttleSelectionArea);
 
-      var goButtonArea = document.createElement('a-entity');
-      goButtonArea.setAttribute('geometry','primitive:plane; height:0.2; width:0.025;');
-      goButtonArea.setAttribute('position',"+0.1125 -0.2 0");
-      goButtonArea.setAttribute('material', 'src:#go');
-      goButtonArea.addEventListener('mousedown', function(evt){
+      this.goButtonArea = XWING.generateElementByJSON({
+        element: 'a-entity',
+        geometry: 'primitive:plane; height:0.2; width:0.025;',
+        position: '+0.1125 -0.2 0',
+        material: 'src:#go'
+      });
+      this.goButtonArea.addEventListener('mousedown', function(evt){
         el.emit('doMove',{yaw:self.moveXSelection,pitch:self.moveYSelection,throttle:self.throttleSelection});
         el.removeState('movementInterfaceActive');
       });
-      self.goButtonArea = goButtonArea;
-      self.selectionArea.append(goButtonArea);
+      this.selectionArea.append(this.goButtonArea);
 
 
-      var clickpunkt = document.createElement('a-entity');
-      clickpunkt.setAttribute('geometry','primitive:sphere; radius:0.005');
-      clickpunkt.setAttribute('position',""+0+" "+0+" 0");
-      clickpunkt.setAttribute('material',"color:blue");
-      clickpunkt.addEventListener('mousedown', function(){return false;});
-      self.clickpunkt = clickpunkt;
-      self.turnSelectionArea.append(clickpunkt);
+      this.clickpunkt = XWING.generateElementByJSON({
+        element: 'a-entity',
+        geometry: 'primitive:sphere; radius:0.005',
+        position: ""+0+" "+0+" 0",
+        material: 'color:blue'
+      });
+      this.clickpunkt.addEventListener('mousedown', function(){return false;});
+      this.turnSelectionArea.append(this.clickpunkt);
 
-      var throttleclickpunkt = document.createElement('a-entity');
-      throttleclickpunkt.setAttribute('geometry','primitive: box; width: 0.05; height: 0.005; depth: 0.005; ');
-      throttleclickpunkt.setAttribute('position',""+0+" "+0+" 0");
-      throttleclickpunkt.setAttribute('material',"color:blue");
-      throttleclickpunkt.addEventListener('mousedown', function(){return false;});
-      self.throttleclickpunkt = throttleclickpunkt;
-      self.throttleSelectionArea.append(throttleclickpunkt);
+      this.throttleclickpunkt = XWING.generateElementByJSON({
+        element: 'a-entity',
+        geometry: 'primitive: box; width: 0.05; height: 0.005; depth: 0.005; ',
+        position: ""+0+" "+0+" 0",
+        material: 'color:blue'
+      });
+      this.throttleclickpunkt.addEventListener('mousedown', function(){return false;});
+      this.throttleSelectionArea.append(this.throttleclickpunkt);
 
       el.emit('doMoveGhost',{yaw:self.moveXSelection,pitch:self.moveYSelection,throttle:self.throttleSelection});
     }
