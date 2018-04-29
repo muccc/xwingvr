@@ -5,27 +5,29 @@ AFRAME.registerComponent('commandable', {
   init: function () {
     var self = this;
 
-    this.active = false;
-    this.deactivate = function () {
-        this.el.emit('setShipInactive');
-        this.active=false;
+    this.handleMouseDown = function() {
+      if(self.el.is("maneuverable")){
+        self.switchManeuverableUIActive();
+      }
+    }
+    this.el.addEventListener('mousedown', this.handleMouseDown);
+
+    this.maneuverableUIActive = false;
+    this.deactivateManeuverableUI = function () {
+        this.maneuverableUIActive=false;
         this.el.removeState('movementInterfaceActive');
     }
-    this.activate = function() {
-        this.el.emit('setShipActive');
-        this.active=true;
+    this.activateManeuverableUI = function() {
+        this.maneuverableUIActive=true;
         this.el.addState('movementInterfaceActive');
     }
-    this.switchActive = function() {
-      if(self.active) {
-          self.deactivate();
+    this.switchManeuverableUIActive = function() {
+      if(self.maneuverableUIActive) {
+          self.deactivateManeuverableUI();
         } else {
-          self.activate();
+          self.activateManeuverableUI();
         }
     }
-
-    this.el.addEventListener('mousedown', this.switchActive);
-    this.el.emit('updatespherestatus');
 
     this.generateMovementInterface = function() {
       var el = this.el;
@@ -123,30 +125,38 @@ AFRAME.registerComponent('commandable', {
       el.emit('doMoveGhost',{yaw:self.moveXSelection,pitch:self.moveYSelection,throttle:self.throttleSelection});
     }
 
-    this.movementInterfaceActiveEventListener = function (evt) {
+    this.stateAddedEventListener = function (evt) {
       if (evt.detail.state == 'movementInterfaceActive'){
         self.generateMovementInterface();
+        self.el.emit('updatespherestatus');
+      } else if (evt.detail.state == 'maneuverable'){
+        self.el.emit('updatespherestatus');
       }
     };
-    this.el.addEventListener('stateadded', this.movementInterfaceActiveEventListener);
+    this.el.addEventListener('stateadded', this.stateAddedEventListener);
 
-    this.movementInterfaceInactiveEventListener = function (evt) {
+    this.stateRemovedEventListener = function (evt) {
       if (evt.detail.state == 'movementInterfaceActive'){
         XWING.removeElement(self.turnSelectionArea);
         XWING.removeElement(self.goButtonArea);
         XWING.removeElement(self.throttleSelectionArea);
         XWING.removeElement(self.selectionArea);
+        self.el.emit('clear');
+        self.el.emit('updatespherestatus');
+      }
+      else if (evt.detail.state == 'maneuverable'){
+        self.el.removeState('movementInterfaceActive');
+
+        self.el.emit('clear');
+        self.el.emit('updatespherestatus');
       }
     };
-    this.el.addEventListener('stateremoved', this.movementInterfaceInactiveEventListener);
+    this.el.addEventListener('stateremoved', this.stateRemovedEventListener);
   },
   remove: function() {
-    this.el.removeState('movementInterfaceActive');
-    this.el.removeEventListener('mousedown', this.switchActive);
-    this.el.removeEventListener('stateremoved', this.movementInterfaceInactiveEventListener);
-    this.el.removeEventListener('stateadded', this.movementInterfaceActiveEventListener);
-
-    this.el.emit('clear');
+    this.el.removeEventListener('stateremoved', this.stateRemovedEventListener);
+    this.el.removeEventListener('stateadded', this.stateAddedEventListener);
+    this.el.removeEventListener('mousedown', this.handleMouseDown);
   },
   tick: function() {
     if(this.el.is('movementInterfaceActive')){

@@ -19,6 +19,7 @@ AFRAME.registerComponent('xwingscene', {
       this.socket.on('yourship', (data) => {
         var ship = document.querySelector('#'+data.id);
         ship.className += " commandable";
+        ship.setAttribute("commandable", "");
       });
 
       this.socket.on('removeShip',(data) => {
@@ -92,9 +93,9 @@ AFRAME.registerComponent('xwingscene', {
       var els = document.querySelectorAll('.commandable');
       for (var i = 0; i < els.length; i++) {
         if (enable) {
-          els[i].setAttribute("commandable", "");
+          els[i].addState("maneuverable");
         } else {
-          els[i].removeAttribute("commandable");
+          els[i].removeState("maneuverable");
         }
       }
     }

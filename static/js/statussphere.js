@@ -29,7 +29,7 @@ AFRAME.registerComponent('statussphere', {
         this.getSphere().setAttribute("material","color:#F00; opacity:0.2");
         this.hoverOffValue = 0.2;
         this.hoverOnValue = 0.4;
-      } else if (this.el.getAttribute('commandable')!=null) {
+      } else if (this.el.is('maneuverable')) {
         this.getSphere().setAttribute("material","color:#0F0");
         this.hoverOffValue = 0.01;
         this.hoverOnValue = 0.2;
