@@ -123,9 +123,9 @@ AFRAME.registerComponent('xwingscene', {
       var els = document.querySelectorAll('.commandable');
       for (var i = 0; i < els.length; i++) {
         if (enable) {
-          els[i].setAttribute("commandableactionship", "");
+          els[i].addState("combatReady");
         } else {
-          els[i].removeAttribute("commandableactionship");
+          els[i].removeState("combatReady");
         }
       }
     }

@@ -33,11 +33,7 @@ AFRAME.registerComponent('statussphere', {
         this.getSphere().setAttribute("material","color:#0F0");
         this.hoverOffValue = 0.01;
         this.hoverOnValue = 0.2;
-      } else if (this.el.getAttribute('commandableactionshipactive')!=null) {
-        this.getSphere().setAttribute("material","color:#FFF");
-        this.hoverOffValue = 0.2;
-        this.hoverOnValue = 0.2;
-      } else if (this.el.getAttribute('commandableactionship')!=null) {
+      } else if (this.el.is('combatReady')) {
         this.getSphere().setAttribute("material","color:#FF0");
         this.hoverOffValue = 0.01;
         this.hoverOnValue = 0.2;

@@ -8,6 +8,8 @@ AFRAME.registerComponent('commandable', {
     this.handleMouseDown = function() {
       if(self.el.is("maneuverable")){
         self.switchManeuverableUIActive();
+      } else if(self.el.is("combatReady")){
+        self.makeAllOtherShipsTargetable(true);
       }
     }
     this.el.addEventListener('mousedown', this.handleMouseDown);
@@ -125,11 +127,34 @@ AFRAME.registerComponent('commandable', {
       el.emit('doMoveGhost',{yaw:self.moveXSelection,pitch:self.moveYSelection,throttle:self.throttleSelection});
     }
 
+    this.doSetTarget = function(myTargetID) {
+      document.querySelector('a-scene').emit("targetSelection", {shooterID:self.el.id, targetID:myTargetID.detail});
+      self.makeAllOtherShipsTargetable(false);
+      console.log(self.el.id + " shoots at "+ myTargetID.detail);
+    }
+
+    this.makeAllOtherShipsTargetable = function(enable) {
+      var els = document.querySelectorAll('.targetable');
+      for (var i = 0; i < els.length; i++) {
+        if (enable) {
+          if (els[i].id != this.el.id) {
+            els[i].setAttribute("targetable", "origin:"+this.el.id);
+          }
+        } else {
+          els[i].removeAttribute("targetable");
+        }
+        els[i].emit('updatespherestatus');
+      }
+    }
+
     this.stateAddedEventListener = function (evt) {
       if (evt.detail.state == 'movementInterfaceActive'){
         self.generateMovementInterface();
         self.el.emit('updatespherestatus');
       } else if (evt.detail.state == 'maneuverable'){
+        self.el.emit('updatespherestatus');
+      } else if (evt.detail.state == 'combatReady'){
+        self.el.addEventListener('setTarget', self.doSetTarget);
         self.el.emit('updatespherestatus');
       }
     };
@@ -148,6 +173,10 @@ AFRAME.registerComponent('commandable', {
         self.el.removeState('movementInterfaceActive');
 
         self.el.emit('clear');
+        self.el.emit('updatespherestatus');
+      } else if (evt.detail.state == 'combatReady'){
+        self.makeAllOtherShipsTargetable(false);
+        self.el.removeEventListener('setTarget', this.doSetTarget);
         self.el.emit('updatespherestatus');
       }
     };
@@ -168,7 +197,29 @@ AFRAME.registerComponent('commandable', {
   },
 });
 
+AFRAME.registerComponent('targetable', {
+  dependencies : ['ship'],
 
+  schema: {
+      origin: {type: 'string', default: '#none'},
+    },
+
+  init: function() {
+    //console.log(this.el.id+" is now targetable");
+
+    var self = this;
+    this.setMyselfAsTarget = function() {
+      var originEl = document.querySelector("#"+self.data.origin);
+      originEl.emit("setTarget", self.el.id);
+    }
+
+    this.el.addEventListener('mousedown', this.setMyselfAsTarget);
+  },
+
+  remove: function() {
+    this.el.removeEventListener('mousedown', this.setMyselfAsTarget);
+  }
+});
 
 window.addEventListener('load', function() {
   var assets = [{
